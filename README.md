@@ -56,7 +56,8 @@ Node.js で書かれた Web アプリケーションなので、任意の場所�
 
 ### 4. 2 で作った app に、3 の URL を登録する
 
-- 左メニュー Event Subscriptions を開き、 Request URL に 3 でデプロイした deglacer の URL を入力
+- 左メニュー Event Subscriptions を開く
+- Request URL に `3でデプロイしたアプリのURL/slack/events` を入力（e.g. https://your-app.herokuapp.com/slack/events）
 - Verified と表示されたら Enable Events を On にして Save Changes
 
 ### 5. Slack App の bot をチャンネルに招待する
