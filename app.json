@@ -1,0 +1,17 @@
+{
+  "name": "slack-notion-preview",
+  "description": "Slack App for unfurling private Notion URL",
+  "repository": "https://github.com/anycloud-inc/slack-notion-preview",
+  "image": "heroku/nodejs",
+  "env": {
+    "SLACK_TOKEN": {
+      "description": "Slack OAuth Access Token"
+    },
+    "SLACK_SIGNING_SECRET": {
+      "description": "Slack Signing Secret to verify signature"
+    },
+    "NOTION_TOKEN": {
+      "description": "Notion Auth Token"
+    }
+  }
+}
