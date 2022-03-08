@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev": "ts-node-dev --poll --respawn --transpile-only --files ./src/index.ts"
+    "dev": "ts-node-dev --poll --respawn --transpile-only --files ./src/index.ts",
+    "build": "tsc -p .",
+    "start": "NODE_ENV=production node dist/src/index.js"
   },
   "dependencies": {
     "@notionhq/client": "^1.0.2",
