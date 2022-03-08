@@ -1,6 +1,6 @@
 # slack-notion-preview
 
-[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
+![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)
 
 Notion リンクを Slack 上で展開してくれる君
 
