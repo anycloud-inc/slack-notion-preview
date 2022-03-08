@@ -2,13 +2,11 @@
 
 ![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)
 
-Notion リンクを Slack 上で展開してくれる君
-
-![Usage](docs/usage.png)
-
 ## Description
 
 private な Notion リンクが Slack に投稿された際に、それを展開してくれる Slack App です。
+
+![Usage](docs/usage.png)
 
 ## Features
 
