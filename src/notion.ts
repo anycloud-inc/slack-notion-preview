@@ -1,5 +1,4 @@
 import { Client } from '@notionhq/client'
-import { GetPageResponse } from '@notionhq/client/build/src/api-endpoints'
 import { appEnv } from './app-env'
 import { logger } from './logger'
 import { getLastElement } from './utils'
@@ -69,15 +68,15 @@ export const notionService = {
   },
 
   getPageIdFromUrl: (url: URL): string | undefined => {
-    // モーダル表示の場合はqueryのpに入っている
-    // https://www.notion.so/example/my-title-571bb99b29e040eb8a46c2f9b7d138af?p=5daca1bba9ce4ed0bf7a5d348ac9a81d
+    // In case of modal display, pageId is in query 'p'.
+    // e.g. https://www.notion.so/example/my-title-571bb99b29e040eb8a46c2f9b7d138af?p=5daca1bba9ce4ed0bf7a5d348ac9a81d
     const queryId = url.searchParams.get('p')
     if (queryId != null) {
       return queryId
     }
 
-    // ページ表示の場合はpathを-で区切った末端部分
-    // https://www.notion.so/example/my-title-571bb99b29e040eb8a46c2f9b7d138af
+    // In case of page display, pageId is the terminal part of the path separated by '-'.
+    // e.g. https://www.notion.so/example/my-title-571bb99b29e040eb8a46c2f9b7d138af
     const pathLast = getLastElement(url.pathname.split('/'))
     return getLastElement(pathLast?.split('-') ?? [])
   },
