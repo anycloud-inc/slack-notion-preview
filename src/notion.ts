@@ -14,8 +14,14 @@ export const notionUtil = {
   getPageIdFromUrl: (url: URL): string | undefined => {
     // モーダル表示の場合はqueryのpに入っている
     // https://www.notion.so/example/my-title-571bb99b29e040eb8a46c2f9b7d138af?p=5daca1bba9ce4ed0bf7a5d348ac9a81d
+    const queryId = url.searchParams.get('p')
+    if (queryId != null) {
+      return queryId
+    }
+
     // ページ表示の場合はpathを-で区切った末端部分
     // https://www.notion.so/example/my-title-571bb99b29e040eb8a46c2f9b7d138af
-    return url.searchParams.get('p') ?? getLastElement(url.pathname.split('-'))
+    const pathLast = getLastElement(url.pathname.split('/'))
+    return getLastElement(pathLast?.split('-') ?? [])
   },
 }

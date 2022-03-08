@@ -3,7 +3,6 @@ appEnv.init()
 
 import { App as SlackApp, LogLevel } from '@slack/bolt'
 import { ChatUnfurlArguments } from '@slack/web-api'
-import { nonNullable } from './utils'
 import { logger } from './logger'
 import { notionClient, notionUtil } from './notion'
 
@@ -19,54 +18,86 @@ const isNotionDomain = (domain: string): boolean => {
 
 slackApp.event('link_shared', async ({ event, client }) => {
   console.log(event)
-  const promises = event.links
-    .filter(link => isNotionDomain(link.domain))
-    .map(async link => {
-      const url = new URL(link.url)
-      const notionPageId = notionUtil.getPageIdFromUrl(url)
+  for (const link of event.links) {
+    if (!isNotionDomain(link.domain)) continue
 
-      if (notionPageId == null) {
-        logger.debug(`PageId not found in ${url}`)
-        return null
-      }
+    const url = new URL(link.url)
+    const notionPageId = notionUtil.getPageIdFromUrl(url)
 
-      const page = await notionClient.pages.retrieve({ page_id: notionPageId })
-      if (!('properties' in page)) {
-        logger.debug(`properties not found in ${page}`)
-        return null
-      }
-      const blocks = await notionClient.blocks.children.list({
-        block_id: notionPageId,
-      })
-      return { page, blocks }
+    if (notionPageId == null) {
+      logger.error(`PageId not found in ${url}`)
+      continue
+    }
+
+    const page = await notionClient.pages.retrieve({ page_id: notionPageId })
+    if (!('properties' in page)) {
+      logger.error(`properties not found in ${page}`)
+      continue
+    }
+    const blocks = await notionClient.blocks.children.list({
+      block_id: notionPageId,
     })
 
-  const notionPages = (await Promise.all(promises)).filter(nonNullable)
+    const notionPages = [{ page, blocks }]
+    logger.debug('notionPages', notionPages)
 
-  logger.debug('notionPages', notionPages)
+    const notionUnfurls = notionPages.reduce((prev, { page, blocks }) => {
+      let title = ''
+      for (const property of Object.values(page.properties)) {
+        if (property.type !== 'title') continue
+        title = property.title.map(x => x.plain_text).join('')
+      }
 
-  const notionUnfurls = notionPages.reduce((prev, { page, blocks }) => {
-    let title = ''
-    for (const property of Object.values(page.properties)) {
-      if (property.type !== 'title') continue
-      title = property.title.map(x => x.plain_text).join('')
-    }
+      let text = ''
+      for (const block of blocks.results) {
+        if (!('type' in block)) continue
+        switch (block.type) {
+          case 'paragraph':
+            text += block.paragraph.rich_text.map(x => x.plain_text).join('')
+            text += '\n'
+            break
 
-    prev[page.url] = {
-      title: title,
-      text: 'Text Text',
-      title_link: page.url,
-    }
-    return prev
-  }, {} as ChatUnfurlArguments['unfurls'])
+          case 'bulleted_list_item':
+            text += '・'
+            text += block.bulleted_list_item.rich_text
+              .map(x => x.plain_text)
+              .join('')
+            text += '\n'
+            break
 
-  logger.debug('notionUnfurls', notionUnfurls)
+          case 'numbered_list_item':
+            // TODO: 連番を振る
+            text += '・'
+            text += block.numbered_list_item.rich_text
+              .map(x => x.plain_text)
+              .join('')
+            text += '\n'
+            break
 
-  await client.chat.unfurl({
-    ts: event.message_ts,
-    channel: event.channel,
-    unfurls: notionUnfurls,
-  })
+          default:
+            logger.debug(`Unsupported type: ${block.type}`)
+            break
+        }
+      }
+
+      // unfurlのキーはslackでシェアされたURLと同じ必要あり.
+      // page.urlだと元のURLと変化している場合があるので注意.
+      prev[link.url] = {
+        title,
+        text,
+        title_link: page.url,
+      }
+      return prev
+    }, {} as ChatUnfurlArguments['unfurls'])
+
+    logger.debug('notionUnfurls', notionUnfurls)
+
+    await client.chat.unfurl({
+      ts: event.message_ts,
+      channel: event.channel,
+      unfurls: notionUnfurls,
+    })
+  }
 })
 
 const main = async () => {
