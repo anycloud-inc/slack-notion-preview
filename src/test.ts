@@ -3,7 +3,7 @@ appEnv.init()
 
 import { ChatUnfurlArguments } from '@slack/web-api'
 import { logger } from './logger'
-import { notionClient, notionUtil } from './notion'
+import { notionClient, notionService } from './notion'
 
 // const notion
 
@@ -11,7 +11,7 @@ const main = async () => {
   const url = new URL(
     'https://www.notion.so/anycloud/2020-12-03-SNS-2eeaeba7d2a243e195f33447ab62fb1d'
   )
-  const notionPageId = notionUtil.getPageIdFromUrl(url)
+  const notionPageId = notionService.getPageIdFromUrl(url)
 
   if (notionPageId == null) {
     logger.debug(`PageId not found in ${url}`)
