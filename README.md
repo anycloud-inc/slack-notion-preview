@@ -75,5 +75,5 @@ API 経由でのアクセスをするためには、そのページで Integrati
 
 ## See Also
 
-notion-deglacer は[MH4GF さんのリポジトリ](https://github.com/MH4GF/notion-deglacer)を参考に作られています。  
+slack-notion-preview は[MH4GF さんのリポジトリ](https://github.com/MH4GF/notion-deglacer)を参考に作られています。  
 特に README の大半をそのまま利用させていただいています。この場をお借りして御礼申し上げます。
