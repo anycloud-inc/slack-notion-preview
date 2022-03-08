@@ -1,8 +1,11 @@
+import { appEnv } from './app-env'
+appEnv.init()
+
 import { App as SlackApp, LogLevel } from '@slack/bolt'
 import { ChatUnfurlArguments } from '@slack/web-api'
-import { appEnv } from './app-env'
-
-appEnv.init()
+import { nonNullable } from './utils'
+import { logger } from './logger'
+import { notionClient, notionUtil } from './notion'
 
 const slackApp = new SlackApp({
   token: appEnv.slackToken,
@@ -16,18 +19,50 @@ const isNotionDomain = (domain: string): boolean => {
 
 slackApp.event('link_shared', async ({ event, client }) => {
   console.log(event)
-  const notionUnfurls = event.links
-    .filter(x => isNotionDomain(x.domain))
-    .reduce((prev, current) => {
-      // TODO: notion API にアクセス
-      prev[current.url] = {
-        title: 'Title Title',
-        text: 'Text Text',
-        title_link: current.url,
+  const promises = event.links
+    .filter(link => isNotionDomain(link.domain))
+    .map(async link => {
+      const url = new URL(link.url)
+      const notionPageId = notionUtil.getPageIdFromUrl(url)
+
+      if (notionPageId == null) {
+        logger.debug(`PageId not found in ${url}`)
+        return null
       }
-      return prev
-    }, {} as ChatUnfurlArguments['unfurls'])
-  client.chat.unfurl({
+
+      const page = await notionClient.pages.retrieve({ page_id: notionPageId })
+      if (!('properties' in page)) {
+        logger.debug(`properties not found in ${page}`)
+        return null
+      }
+      const blocks = await notionClient.blocks.children.list({
+        block_id: notionPageId,
+      })
+      return { page, blocks }
+    })
+
+  const notionPages = (await Promise.all(promises)).filter(nonNullable)
+
+  logger.debug('notionPages', notionPages)
+
+  const notionUnfurls = notionPages.reduce((prev, { page, blocks }) => {
+    let title = ''
+    for (const property of Object.values(page.properties)) {
+      if (property.type !== 'title') continue
+      title = property.title.map(x => x.plain_text).join('')
+    }
+
+    prev[page.url] = {
+      title: title,
+      text: 'Text Text',
+      title_link: page.url,
+    }
+    return prev
+  }, {} as ChatUnfurlArguments['unfurls'])
+
+  logger.debug('notionUnfurls', notionUnfurls)
+
+  await client.chat.unfurl({
     ts: event.message_ts,
     channel: event.channel,
     unfurls: notionUnfurls,
