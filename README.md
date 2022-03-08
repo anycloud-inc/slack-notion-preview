@@ -19,7 +19,7 @@ private な Notion リンクが Slack に投稿された際に、それを展開
 
 1. Notion API の Integrations を Internal integrations で作成し、token を取得
 2. Slack App 作成
-3. notion-deglacer のデプロイ
+3. slack-notion-preview のデプロイ
 4. 2 で作った app に、3 の URL を登録する
 5. Slack App の bot ユーザーをチャンネルに招待する
 6. 展開したいページで Integration を許可する
