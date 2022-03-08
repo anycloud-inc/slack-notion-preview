@@ -1,46 +1,42 @@
-import * as express from 'express'
-import * as morgan from 'morgan'
+import { App as SlackApp, LogLevel } from '@slack/bolt'
+import { ChatUnfurlArguments } from '@slack/web-api'
 import { appEnv } from './app-env'
-import { logger } from './logger'
 
 appEnv.init()
 
-const app = express()
-
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
-app.use(morgan('dev'))
-
-process.on('unhandledRejection', logger.error)
-
-// const slackRequestValidator = req => {
-// request_body = req.body()
-// req.
-// }
-
-// const server = http.createServer((req, res) => {
-//   // TODO: slack のリクエスト検証
-//   // TODO: challengeリクエストのハンドリング
-//   // TODO: unfurlリクエストのハンドリング
-
-//   console.log(appEnv.notionToken)
-//   res.writeHead(200, {
-//     'Content-Type': 'application/json',
-//   })
-
-//   const responseMessage = '<h1>Hello World</h1>'
-//   res.end(responseMessage)
-// })
-
-app.get('/', (req, res) => {
-  logger.log()
-
-  const timestamp = req.headers['X-Slack-Request-Timestamp']
-  const sigBase = 'v0:' + timestamp + ':' + req.body
-
-  res.json({ success: true })
+const slackApp = new SlackApp({
+  token: appEnv.slackToken,
+  signingSecret: appEnv.slackSigningSecret,
+  logLevel: LogLevel.DEBUG,
 })
 
-app.listen(appEnv.apiPort, () =>
-  logger.debug(`Server listening on port ${appEnv.apiPort}...`)
-)
+const isNotionDomain = (domain: string): boolean => {
+  return domain.match(/(www\.)?notion.so/) != null
+}
+
+slackApp.event('link_shared', async ({ event, client }) => {
+  console.log(event)
+  const notionUnfurls = event.links
+    .filter(x => isNotionDomain(x.domain))
+    .reduce((prev, current) => {
+      // TODO: notion API にアクセス
+      prev[current.url] = {
+        title: 'Title Title',
+        text: 'Text Text',
+        title_link: current.url,
+      }
+      return prev
+    }, {} as ChatUnfurlArguments['unfurls'])
+  client.chat.unfurl({
+    ts: event.message_ts,
+    channel: event.channel,
+    unfurls: notionUnfurls,
+  })
+})
+
+const main = async () => {
+  await slackApp.start({ port: appEnv.apiPort, path: '/' })
+  console.log(`⚡️ Bolt app is listening ${appEnv.apiPort}`)
+}
+
+main()
