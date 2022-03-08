@@ -15,8 +15,8 @@ export const appEnv = {
     return process.env.NODE_ENV === 'production'
   },
 
-  get apiPort(): number {
-    return Number(process.env.API_PORT) ?? 80
+  get port(): number {
+    return Number(process.env.PORT) || 80
   },
 
   get notionToken(): string {

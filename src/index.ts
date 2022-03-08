@@ -50,8 +50,8 @@ slackApp.event('link_shared', async ({ event, client }) => {
 })
 
 const main = async () => {
-  await slackApp.start({ port: appEnv.apiPort, path: '/' })
-  console.log(`⚡️ Bolt app is listening ${appEnv.apiPort}`)
+  await slackApp.start({ port: appEnv.port, path: '/' })
+  console.log(`⚡️ Bolt app is listening ${appEnv.port}`)
 }
 
 main()
