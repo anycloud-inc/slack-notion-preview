@@ -49,9 +49,10 @@ export const notionService = {
         text += NEWLINE
       }
 
+      // Retrieving children content
       if ('has_children' in block && block.has_children && options.depth > 0) {
         text += await this.getPageBody(block.id, {
-          blockCount: 10,
+          blockCount: options.blockCount,
           indent: options.indent + 1,
           depth: options.depth - 1,
         })
