@@ -1,4 +1,5 @@
 import { Client } from '@notionhq/client'
+import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints'
 import { appEnv } from './app-env'
 import { logger } from './logger'
 import { getLastElement } from './utils'
@@ -6,6 +7,9 @@ import { getLastElement } from './utils'
 export const notionClient = new Client({
   auth: appEnv.notionToken,
 })
+
+const INDENT = '    '
+const NEWLINE = '\n'
 
 export const notionService = {
   async getPageTitle(pageId: string): Promise<string> {
@@ -24,43 +28,61 @@ export const notionService = {
     return title
   },
 
-  async getPageBody(pageId: string): Promise<string> {
+  async getPageBody(
+    pageId: string,
+    options = {
+      blockCount: 10,
+      indent: 0,
+      depth: 3,
+    }
+  ): Promise<string> {
     const blocks = await notionClient.blocks.children.list({
       block_id: pageId,
     })
 
     let text = ''
-    for (const block of blocks.results) {
-      if (!('type' in block)) continue
-      switch (block.type) {
-        case 'paragraph':
-          text += block.paragraph.rich_text.map(x => x.plain_text).join('')
-          text += '\n'
-          break
+    for (const block of blocks.results.slice(0, options.blockCount)) {
+      const blockContent = this.getBlockContent(block)
+      if (blockContent.length > 0) {
+        text += INDENT.repeat(options.indent)
+        text += blockContent
+        text += NEWLINE
+      }
 
-        case 'bulleted_list_item':
-          text += '・'
-          text += block.bulleted_list_item.rich_text
-            .map(x => x.plain_text)
-            .join('')
-          text += '\n'
-          break
-
-        case 'numbered_list_item':
-          // TODO: 連番を振る
-          text += '・'
-          text += block.numbered_list_item.rich_text
-            .map(x => x.plain_text)
-            .join('')
-          text += '\n'
-          break
-
-        default:
-          logger.debug(`Unsupported type: ${block.type}`)
-          break
+      if ('has_children' in block && block.has_children && options.depth > 0) {
+        text += await this.getPageBody(block.id, {
+          blockCount: 10,
+          indent: options.indent + 1,
+          depth: options.depth - 1,
+        })
       }
     }
     return text
+  },
+
+  getBlockContent(block: GetBlockResponse): string {
+    if (!('type' in block)) return ''
+    switch (block.type) {
+      case 'paragraph':
+        return block.paragraph.rich_text.map(x => x.plain_text).join('')
+
+      case 'bulleted_list_item':
+        return (
+          '・' +
+          block.bulleted_list_item.rich_text.map(x => x.plain_text).join('')
+        )
+
+      case 'numbered_list_item':
+        // TODO: We should give sequential numbers for numbered list
+        return (
+          '・' +
+          block.numbered_list_item.rich_text.map(x => x.plain_text).join('')
+        )
+
+      default:
+        logger.debug(`Unsupported type: ${block.type}`)
+        return ''
+    }
   },
 
   isNotionDomain: (domain: string): boolean => {
