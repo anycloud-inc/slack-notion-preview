@@ -31,15 +31,16 @@ slackApp.event('link_shared', async ({ event, client }) => {
       logger.error(`PageId not found in ${url}`)
       continue
     }
-    const [title, text] = await Promise.all([
-      notionService.getPageTitle(notionPageId),
+    const [pageData, text] = await Promise.all([
+      notionService.getPageData(notionPageId),
       notionService.getPageBody(notionPageId),
     ])
     // Note that the key of the unfurl must be the same as the URL shared on slack.
     unfurls[link.url] = {
-      title,
+      title: pageData.title,
       text,
       title_link: link.url,
+      footer: pageData.breadcrumbs.join(' / '),
     }
   }
   await client.chat.unfurl({
