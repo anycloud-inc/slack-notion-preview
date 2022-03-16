@@ -150,7 +150,8 @@ const helper = {
     const parentData = await notionService.getPageData(
       database.parent.page_id,
       {
-        breadcrumbsDepth: options.breadcrumbsDepth - 1,
+        // Database name is not included in breadcrumbs, so do not change the depth.
+        breadcrumbsDepth: options.breadcrumbsDepth,
       }
     )
     return { breadcrumbs: parentData.breadcrumbs }
