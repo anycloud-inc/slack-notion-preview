@@ -31,7 +31,7 @@ export const notionService = {
   async getPageBody(
     pageId: string,
     options = {
-      blockCount: 10,
+      blockCount: 20,
       indent: 0,
       depth: 3,
     }
