@@ -163,6 +163,24 @@ const helper = {
       case 'paragraph':
         return block.paragraph.rich_text.map(x => x.plain_text).join('')
 
+      case 'heading_1':
+        return '# ' + block.heading_1.rich_text.map(x => x.plain_text).join('')
+
+      case 'heading_2':
+        return '## ' + block.heading_2.rich_text.map(x => x.plain_text).join('')
+
+      case 'heading_3':
+        return (
+          '### ' + block.heading_3.rich_text.map(x => x.plain_text).join('')
+        )
+
+      case 'to_do':
+        const checkMark = block.to_do.checked ? 'x' : ' '
+        return (
+          `- [${checkMark}] ` +
+          block.to_do.rich_text.map(x => x.plain_text).join('')
+        )
+
       case 'bulleted_list_item':
         return (
           '・' +
