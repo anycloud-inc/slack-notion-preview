@@ -11,7 +11,12 @@ private な Notion リンクが Slack に投稿された際に、それを展開
 ## Features
 
 - Notion の記事タイトル展開（プロパティは未対応）
-- Notion の記事コンテンツ展開（通常テキスト、箇条書きリスト、番号リストのみ対応）
+- Notion の記事コンテンツ展開
+  - Heading
+  - Paragraph
+  - 箇条書きリスト
+  - 番号リスト
+  - TODO リスト
 
 ## Installation
 
@@ -52,7 +57,7 @@ Node.js で書かれた Web アプリケーションなので、任意の場所�
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
-※ デプロイしたアプリのURLルートにアクセスしてもページは表示されませんが仕様なので気にしないでください。
+※ デプロイしたアプリの URL ルートにアクセスしてもページは表示されませんが仕様なので気にしないでください。
 
 ### 4. 2 で作った app に、3 の URL を登録する
 
