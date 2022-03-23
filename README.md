@@ -55,7 +55,7 @@ Since it is a web application written in Node.js, it can easily be run anywhere,
 
 You can deploy from the following button
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/anycloud-inc/slack-notion-preview)
 
 ※ The page will not be displayed even if you access the URL root of the deployed app, but this is just a specification, so don't worry about it.
 

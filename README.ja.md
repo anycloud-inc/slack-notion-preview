@@ -55,7 +55,7 @@ Node.js で書かれた Web アプリケーションなので、任意の場所�
 
 以下のボタンからデプロイできます。
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/anycloud-inc/slack-notion-preview)
 
 ※ デプロイしたアプリの URL ルートにアクセスしてもページは表示されませんが仕様なので気にしないでください。
 
