@@ -1,5 +1,12 @@
 # slack-notion-preview
 
+⚠️⚠️⚠️
+
+**The official Slack x Notion app has been released and we recommend using the official app instead of this repository.**
+https://slack.com/apps/A049JV0H0KC-notion
+
+⚠️⚠️⚠️
+
 English | [日本語](/README.ja.md)
 
 ## Description
